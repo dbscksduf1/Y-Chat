@@ -60,7 +60,7 @@ function MainPage() {
   useEffect(() => {
 
     const client = new Client({
-      brokerURL: `ws://localhost:8080/ws-chat?token=${token}`,
+      brokerURL: `wss://y-chat-my45.onrender.com/ws-chat?token=${token}`,
       reconnectDelay: 5000
     });
 

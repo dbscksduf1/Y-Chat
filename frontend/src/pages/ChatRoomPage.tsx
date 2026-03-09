@@ -82,7 +82,7 @@ function ChatRoomPage({ isRandom }: { isRandom?: boolean }) {
     const client = new Client({
 
   webSocketFactory: () =>
-    new WebSocket(`ws://localhost:8080/ws-chat?token=${token}`),
+    new WebSocket(`wss://y-chat-my45.onrender.com/ws-chat?token=${token}`),
 
   reconnectDelay: 5000,
 

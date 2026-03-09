@@ -3,10 +3,10 @@ spring:
     name: chat
 
   datasource:
-    url: jdbc:mysql://localhost:3306/chatdb
-    username: root
-    password: 6068
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:postgresql://dpg-d6du8gfgi27c738n42u0-a.oregon-postgres.render.com:5432/health_db_kxmb
+    username: health_db_kxmb_user
+    password: ZHWHepT7U9FgBmtUL0IYDU3lqJDcsb93
+    driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
@@ -29,3 +29,6 @@ logging:
   level:
     org.hibernate.SQL: debug
     org.hibernate.orm.jdbc.bind: trace
+
+server:
+  port: ${PORT:8080}

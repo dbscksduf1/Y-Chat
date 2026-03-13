@@ -23,7 +23,7 @@ function ChatListPage() {
     try {
       const res = await axios.get("/api/chat/rooms");
       setRooms(res.data);
-    } catch (err) {src={selectedFriend?.profileImageUrl || DEFAULT_PROFILE}
+    } catch (err) {
       console.error(err);
     }
   };

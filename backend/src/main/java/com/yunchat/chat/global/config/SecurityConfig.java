@@ -46,6 +46,7 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/auth/**",
                                 "/ws-chat/**",
+                                "/uploads/**",
                                 "/",
                                 "/error"
                         ).permitAll()

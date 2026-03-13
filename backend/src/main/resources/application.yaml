@@ -4,8 +4,8 @@ spring:
 
   datasource:
     url: jdbc:postgresql://dpg-d6du8gfgi27c738n42u0-a.oregon-postgres.render.com:5432/health_db_kxmb
-    username: health_db_kxmb_user
-    password: ZHWHepT7U9FgBmtUL0IYDU3lqJDcsb93
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -23,8 +23,8 @@ spring:
 
   servlet:
     multipart:
-      max-file-size: 10MB
-      max-request-size: 10MB
+      max-file-size: 20MB
+      max-request-size: 20MB
 
 logging:
   level:

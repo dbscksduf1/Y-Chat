@@ -204,7 +204,6 @@ const loadBlocked = async () => {
   <div style={styles.sectionTitle}>
     내 프로필
   </div>
-
   <div
     style={styles.logoutText}
     onClick={handleLogout}
@@ -381,9 +380,26 @@ const loadBlocked = async () => {
               >
 
                 <img
-  src={DEFAULT_PROFILE}
-  style={styles.avatar}
-/>
+                  src={
+                    friends.find(
+                      f =>
+                        f.email ===
+                        room.roomName
+                          .split("_")
+                          .find((name: string) => name !== myEmail)
+                    )?.profileImageUrl
+                      ? "https://y-chat-my45.onrender.com" +
+                        friends.find(
+                          f =>
+                            f.email ===
+                            room.roomName
+                              .split("_")
+                              .find((name: string) => name !== myEmail)
+                        )?.profileImageUrl
+                      : DEFAULT_PROFILE
+                  }
+                  style={styles.avatar}
+                />
 
                 <div style={{ flex: 1 }}>
 
@@ -398,12 +414,11 @@ const loadBlocked = async () => {
 </div>
 
                     <div style={styles.chatTime}>
-                      {room.lastMessageTime
-                        ? new Date(room.lastMessageTime).toLocaleTimeString([],{
-                            hour:'2-digit',
-                            minute:'2-digit'
-                          })
-                        : ""}
+                      {room.lastMessageTime &&
+                        new Date(room.lastMessageTime + "Z").toLocaleTimeString("ko-KR", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
                     </div>
 
                   </div>
@@ -562,7 +577,11 @@ const loadBlocked = async () => {
     <div style={styles.modalCard}>
 
       <img
-        src={selectedFriend.profileImageUrl || DEFAULT_PROFILE}
+        src={
+          selectedFriend.profileImageUrl
+            ? "https://y-chat-my45.onrender.com" + selectedFriend.profileImageUrl
+            : DEFAULT_PROFILE
+        }
         style={{
           width:100,
           height:100,

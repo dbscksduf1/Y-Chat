@@ -265,10 +265,12 @@ setMessages((prev) => [...prev, newMessage]);
               {!isMine && (
                 <img
                   src={
-    isRandom
-  ? "https://cdn-icons-png.flaticon.com/512/847/847969.png"
-  : msg.profileImageUrl || "https://cdn-icons-png.flaticon.com/512/847/847969.png"
-  }
+                    isRandom
+                      ? "https://cdn-icons-png.flaticon.com/512/847/847969.png"
+                      : msg.profileImageUrl
+                        ? "https://y-chat-my45.onrender.com" + msg.profileImageUrl
+                        : "https://cdn-icons-png.flaticon.com/512/847/847969.png"
+                  }
                   style={styles.avatar}
                 />
               )}
@@ -301,10 +303,11 @@ setMessages((prev) => [...prev, newMessage]);
                 </div>
 
                 <div style={styles.time}>
-                  {new Date(msg.createdAt).toLocaleTimeString([], {
+                  {new Date(msg.createdAt + "Z").toLocaleTimeString("ko-KR", {
                     hour: "2-digit",
-                    minute: "2-digit",
+                    minute: "2-digit"
                   })}
+
                 </div>
 
               </div>

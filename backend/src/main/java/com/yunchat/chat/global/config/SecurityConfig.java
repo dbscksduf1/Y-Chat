@@ -48,7 +48,8 @@ public class SecurityConfig {
                                 "/ws-chat/**",
                                 "/uploads/**",
                                 "/",
-                                "/error"
+                                "/error",
+                                "/api/chat/rooms/ping"
                         ).permitAll()
 
                         .anyRequest().authenticated()

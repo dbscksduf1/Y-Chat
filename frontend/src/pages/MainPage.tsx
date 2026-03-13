@@ -178,7 +178,7 @@ const loadBlocked = async () => {
 
     await uploadProfileImage(file);
 
-    loadMyProfile();
+    await loadMyProfile();
 
   };
 
@@ -217,9 +217,10 @@ const loadBlocked = async () => {
     <div style={styles.myProfile}>
 
       <img
-  src={me.profileImageUrl || DEFAULT_PROFILE}
-  style={styles.avatar}
-/>
+        key={me.profileImageUrl}
+        src={me.profileImageUrl || DEFAULT_PROFILE}
+        style={styles.avatar}
+      />
 
       <div style={{ flex: 1 }}>
 

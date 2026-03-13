@@ -54,4 +54,8 @@ public class ChatRoomController {
         String username = authentication.getName();
         return chatMessageService.createPrivateRoom(username, friendUsername);
     }
+    @GetMapping("/ping")
+    public String ping() {
+        return "pong";
+    }
 }

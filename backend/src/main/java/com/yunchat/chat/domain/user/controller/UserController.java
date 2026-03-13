@@ -11,7 +11,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Base64;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 @RestController
 @RequiredArgsConstructor
@@ -40,7 +43,7 @@ public class UserController {
                 .build();
     }
 
-    // 🔥 프로필 상태메시지 수정
+    // 🔥 상태메시지 수정
     @PatchMapping("/profile")
     public String updateProfile(@RequestBody ProfileUpdateRequest request,
                                 Authentication authentication) {
@@ -52,7 +55,7 @@ public class UserController {
         return "Profile updated successfully";
     }
 
-    // 🔥 프로필 이미지 업로드 (카톡처럼 변경 가능)
+    // 🔥 프로필 이미지 업로드 (파일 저장 방식)
     @PostMapping(value = "/profile-image", consumes = "multipart/form-data")
     public String uploadProfileImage(@RequestParam("file") MultipartFile file,
                                      Authentication authentication) throws Exception {
@@ -61,7 +64,6 @@ public class UserController {
             throw new RuntimeException("Authentication required");
         }
 
-        // 🔥 이미지 크기 제한 (1MB)
         if (file.getSize() > 1024 * 1024) {
             throw new RuntimeException("Image size must be less than 1MB");
         }
@@ -71,17 +73,19 @@ public class UserController {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        String base64 = Base64.getEncoder().encodeToString(file.getBytes());
+        String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
 
-        // 🔥 contentType null 방어
-        String contentType = file.getContentType();
-        if (contentType == null) {
-            contentType = "image/png";
+        Path uploadPath = Paths.get("uploads");
+
+        if (!Files.exists(uploadPath)) {
+            Files.createDirectories(uploadPath);
         }
 
-        String imageData = "data:" + contentType + ";base64," + base64;
+        Path filePath = uploadPath.resolve(fileName);
 
-        user.setProfileImageUrl(imageData);
+        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+        user.setProfileImageUrl("/uploads/" + fileName);
 
         userRepository.save(user);
 

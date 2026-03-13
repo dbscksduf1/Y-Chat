@@ -217,8 +217,11 @@ const loadBlocked = async () => {
     <div style={styles.myProfile}>
 
       <img
-        key={me.profileImageUrl}
-        src={me.profileImageUrl || DEFAULT_PROFILE}
+        src={
+          me.profileImageUrl
+            ? "https://y-chat-my45.onrender.com" + me.profileImageUrl
+            : DEFAULT_PROFILE
+        }
         style={styles.avatar}
       />
 
@@ -314,7 +317,11 @@ const loadBlocked = async () => {
                 <div style={styles.profileWrapper}>
 
                   <img
-  src={f.profileImageUrl || DEFAULT_PROFILE}
+  src={
+    f.profileImageUrl
+      ? "https://y-chat-my45.onrender.com" + f.profileImageUrl
+      : DEFAULT_PROFILE
+  }
   style={styles.avatar}
 />
 

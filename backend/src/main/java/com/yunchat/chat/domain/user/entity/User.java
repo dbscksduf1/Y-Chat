@@ -27,8 +27,8 @@ public class User {
     private String password;
 
     // 🔥 프로필 이미지 (Base64 저장)
-    @Lob
-    @Column(columnDefinition = "LONGTEXT")
+
+    @Column(columnDefinition = "TEXT")
     private String profileImageUrl;
 
     @Column(length = 100)

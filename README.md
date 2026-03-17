@@ -3,19 +3,20 @@
 > WebSocket과 Redis Pub/Sub 기반의 실시간 채팅 및 랜덤채팅 서비스
 
 ---
-## 📑 목차
+# 📑 목차
 
-- [프로젝트 소개](#프로젝트-소개)
-- [기술 스택](#기술-스택)
-- [주요 기능](#주요-기능)
-- [시스템 아키텍처](#시스템-아키텍처)
-- [핵심 구현 및 성능 리팩토링](#핵심-구현-및-성능-리팩토링)
-- [사진 포트폴리오](#사진-포트폴리오)
+- [프로젝트 소개](#intro)
+- [기술 스택](#stack)
+- [주요 기능](#feature)
+- [시스템 아키텍처](#arch)
+- [핵심 구현 및 성능 리팩토링](#core)
+- [서비스화면](#ui)
+- [포트폴리오 문제 해결](#problem)
 - [트러블슈팅](#trouble)
 - [회고](#review)
   ---
 
-## 프로젝트 소개
+# 프로젝트 소개 <a name="intro"></a>
 
 Y-Chat은 사용자 간 실시간 채팅과 랜덤채팅 기능을 제공하는 웹 서비스입니다.  
 WebSocket 기반의 양방향 통신과 Redis Pub/Sub 구조를 적용하여  
@@ -23,7 +24,7 @@ WebSocket 기반의 양방향 통신과 Redis Pub/Sub 구조를 적용하여
 
 ---
 
-## 기술 스택
+# 기술 스택 <a name="stack"></a>
 
 - Backend: Spring Boot, WebSocket, Redis, JWT
 - Frontend: React
@@ -32,7 +33,7 @@ WebSocket 기반의 양방향 통신과 Redis Pub/Sub 구조를 적용하여
 
 ---
 
-## 주요 기능
+# 주요 기능 <a name="feature"></a>
 
 - JWT 기반 회원 인증 / 로그인
 - 1:1 채팅 및 채팅방 생성
@@ -44,7 +45,7 @@ WebSocket 기반의 양방향 통신과 Redis Pub/Sub 구조를 적용하여
 
 ---
 
-## 시스템 아키텍처
+# 시스템 아키텍처 <a name="arch"></a>
 
 <p align="center">
   <img src="https://github.com/user-attachments/assets/589123ff-441f-4dec-b025-7b08d21c39ac"/>
@@ -86,7 +87,7 @@ Redis Subscriber가 메시지를 수신한 후
 
 
 
-## 핵심 구현 및 성능 리팩토링
+# 핵심 구현 및 성능 리팩토링 <a name="core"></a>
 
 ### 1. WebSocket 기반 실시간 채팅
 
@@ -129,6 +130,7 @@ Redis Subscriber가 메시지를 수신한 후
 - 클라이언트 안정성 향상
 
 ---
+# 서비스 화면 <a name="ui"></a>
 ## 1. 로그인 및 친구목록
 <img width="431" height="958" alt="image" src="https://github.com/user-attachments/assets/0a7dd91f-1bef-4c07-a738-691e93be1c8b" /> <img width="437" height="965" alt="image" src="https://github.com/user-attachments/assets/a71da81a-8829-481d-8da0-c4c3172deb64" /> 
 ## 2. 프로필 수정 및 채팅방 목록
@@ -138,6 +140,7 @@ Redis Subscriber가 메시지를 수신한 후
 <img width="423" height="960" alt="image" src="https://github.com/user-attachments/assets/932d31c7-cffc-462b-b88e-6b6f8a9057fd" /> <img width="436" height="957" alt="image" src="https://github.com/user-attachments/assets/c98b0d16-696f-42b3-8d81-6af99c81f815" />
 
 ---
+# 포트폴리오 문제 해결 <a name="problem"></a>
 ## WebSocket을 활용하여 실시간 메시지처리 해결 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/500746ee-727d-4e5b-b6e5-2320f5e22318" />
 ## Redis Pub/Sub구조를 활용 -> 다중서버에서 안정적<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/32497df8-640a-4dc3-be4c-e8f17bb107fa" /> 
 ## Queue 자료구조 기반 랜덤 채팅 매칭 로직을 구현 <img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/33aa177d-5b61-43f2-8d62-d5534d2ba1e3" />
@@ -147,7 +150,7 @@ Redis Subscriber가 메시지를 수신한 후
 
 
 
-## 트러블슈팅 <a name="trouble"></a>
+# 트러블슈팅 <a name="trouble"></a>
 
 ### 1. WebSocket 메시지 중복 및 구조 문제
 
@@ -182,7 +185,7 @@ Redis Subscriber가 메시지를 수신한 후
 
 ---
 
-## 회고 <a name="review"></a>
+# 회고 <a name="review"></a>
 
 단순한 채팅 기능 구현을 넘어, 실시간 시스템에서 발생하는 다양한 문제를 해결하며 구조와 성능을 함께 고민하고 해결했다.
 특히 WebSocket과 Redis Pub/Sub 구조를 적용하면서 확장 가능한 시스템 설계의 중요성을 이해하게 되었고, 데이터 흐름과 병목 지점을 분석하는 경험을 했다.

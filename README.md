@@ -37,16 +37,40 @@ WebSocket 기반의 양방향 통신과 Redis Pub/Sub 구조를 적용하여
 
 <img width="794" height="650" alt="image" src="https://github.com/user-attachments/assets/8d9c801a-0125-4e3d-a681-f8847e77f488" />
 
-```text
-Client (React)
-   ↓
-WebSocket (STOMP)
-   ↓
-Spring Boot
-   ↓
-Redis Pub/Sub
-   ↓
-DB (PostgreSQL)
+
+### 1. User → React Client
+사용자가 채팅 메시지를 입력하면 React Client가 메시지를 처리합니다.
+
+
+
+### 2. React Client → WebSocket (STOMP)
+React는 서버와 WebSocket 프로토콜(STOMP)로 연결합니다.
+
+
+
+### 3. WebSocket → Spring Boot
+WebSocket 메시지는 Spring Boot 서버로 전달합니다
+
+
+
+### 4. Spring Boot → Redis Pub/Sub
+채팅 메시지는 바로 사용자에게 전송되지 않고  
+브로커 역할을 하는 Redis Pub/Sub으로 전달됩니다.
+
+
+
+### 5. Redis Pub/Sub → WebSocket Broadcast
+Redis Subscriber가 메시지를 수신한 후  
+채팅방 사용자들에게 WebSocket Broadcast로 전달합니다
+
+
+
+### 6. 메시지 저장 (Database)
+채팅 메시지는 동시에 데이터베이스(PostgreSQL)에 저장됩니다.
+
+
+---
+
 
 🔥 핵심 구현 및 성능 개선
 1️⃣ WebSocket 기반 실시간 채팅

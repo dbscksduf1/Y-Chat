@@ -7,6 +7,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import com.yunchat.chat.domain.chat.dto.ChatMessageResponse;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
+import java.util.List;
 
 import java.util.List;
 
@@ -63,6 +66,11 @@ public interface ChatMessageRepository
         on m.sender = u.email
     where m.room.id = :roomId
     and m.deleted = false
+    and (:cursorId is null or m.id < :cursorId)
+    order by m.id desc
 """)
-    Page<ChatMessageResponse> findMessagesWithUser(Long roomId, Pageable pageable);
+    List<ChatMessageResponse> findMessagesWithCursor(
+            Long roomId,
+            Long cursorId,
+            Pageable pageable
 }

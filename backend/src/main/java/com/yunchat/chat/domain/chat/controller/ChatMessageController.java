@@ -19,8 +19,11 @@ public class ChatMessageController {
 
     // 🔹 메시지 조회
     @GetMapping("/rooms/{roomId}/messages")
-    public List<ChatMessageResponse> getMessages(@PathVariable Long roomId) {
-        return chatMessageService.getMessages(roomId);
+    public List<ChatMessageResponse> getMessages(
+            @PathVariable Long roomId,
+            @RequestParam(required = false) Long cursorId
+    ) {
+        return chatMessageService.getMessages(roomId, cursorId);
     }
 
     // 🔹 메시지 읽음 처리

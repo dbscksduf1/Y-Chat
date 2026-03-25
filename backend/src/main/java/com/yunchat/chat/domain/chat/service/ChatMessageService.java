@@ -17,6 +17,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import java.util.Collections;
 
 import java.util.*;
 
@@ -232,14 +237,22 @@ public class ChatMessageService {
         chatRoomRepository.save(room);
     }
 
-    public List<ChatMessageResponse> getMessages(Long roomId) {
+    public List<ChatMessageResponse> getMessages(Long roomId, Long cursorId) {
 
         chatRoomRepository.findById(roomId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ROOM_NOT_FOUND));
 
-        PageRequest pageable = PageRequest.of(0, 20, Sort.by("createdAt").ascending());
+        int size = 20;
 
-        return chatMessageRepository.findMessagesWithUser(roomId, pageable).getContent();
+        Pageable pageable = PageRequest.of(0, size);
+
+        List<ChatMessageResponse> messages =
+                chatMessageRepository.findMessagesWithCursor(roomId, cursorId, pageable);
+
+        // 최신순으로 가져왔으면 뒤집어서 반환 (채팅 UI 맞추기)
+        Collections.reverse(messages);
+
+        return messages;
     }
 
     public List<String> getRoomMemberEmails(Long roomId) {

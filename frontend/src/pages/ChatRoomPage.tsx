@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "../api/axios";
 import { Client } from "@stomp/stompjs";
 import { getMyChatRooms } from "../api/chatApi";
+import { getMessages } from "../api/chatApi";
 
 
 
@@ -10,6 +11,9 @@ import { getMyChatRooms } from "../api/chatApi";
 
 
 function ChatRoomPage({ isRandom }: { isRandom?: boolean }) {
+
+    const [cursorId, setCursorId] = useState<number | null>(null);
+    const [hasMore, setHasMore] = useState(true);
   
 
   const { roomId } = useParams();
@@ -60,20 +64,47 @@ function ChatRoomPage({ isRandom }: { isRandom?: boolean }) {
     messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const loadMessages = async () => {
+  useEffect(() => {
+    setCursorId(null);
+    setHasMore(true);
+    setMessages([]);
+  }, [roomId]);
 
-    try {
 
-      const res = await axios.get(`/api/chat/rooms/${roomId}/messages`);
-      setMessages(res.data);
 
-    } catch (err) {
+      const loadMessages = async () => {
+        if (!hasMore) return;
 
-      console.error("메시지 불러오기 실패", err);
+        try {
+          const res = await getMessages(Number(roomId), cursorId ?? undefined);
+          const newMessages = res;
 
+          if (newMessages.length === 0) {
+            setHasMore(false);
+            return;
+          }
+
+          // 첫 로딩 vs 추가 로딩 구분
+          if (cursorId === null) {
+            setMessages(newMessages);
+          } else {
+            setMessages((prev) => [...newMessages, ...prev]);
+          }
+
+          setCursorId(newMessages[0].id);
+
+        } catch (err) {
+          console.error("메시지 불러오기 실패", err);
+        }
+      };
+
+
+  const handleScroll = (e: any) => {
+    if (e.target.scrollTop === 0) {
+      loadMessages();
     }
-
   };
+
 
   const connect = () => {
 
@@ -238,7 +269,7 @@ setMessages((prev) => [...prev, newMessage]);
 
       </div>
 
-      <div style={styles.messageArea}>
+      <div style={styles.messageArea} onScroll={handleScroll}>
 
         {messages.map((msg, index) => {
           if (msg.system) {

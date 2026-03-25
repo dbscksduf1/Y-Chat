@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import com.yunchat.chat.domain.chat.dto.ChatMessageResponse;
 
 import java.util.List;
 
@@ -47,4 +48,22 @@ public interface ChatMessageRepository
         group by m.room.id
     """)
     List<Object[]> countUnreadGroupedByRoom(String email);
+
+    @Query("""
+    select new com.yunchat.chat.domain.chat.dto.ChatMessageResponse(
+        m.id,
+        m.sender,
+        m.content,
+        m.createdAt,
+        u.profileImageUrl,
+        0
+    )
+    from ChatMessage m
+    join com.yunchat.chat.domain.user.entity.User u
+        on m.sender = u.email
+    where m.room.id = :roomId
+    and m.deleted = false
+    order by m.createdAt asc
+""")
+    List<com.yunchat.chat.domain.chat.dto.ChatMessageResponse> findMessagesWithUser(Long roomId);
 }

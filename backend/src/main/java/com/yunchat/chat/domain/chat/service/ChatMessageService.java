@@ -234,37 +234,10 @@ public class ChatMessageService {
 
     public List<ChatMessageResponse> getMessages(Long roomId) {
 
-        ChatRoom room = chatRoomRepository.findById(roomId)
+        chatRoomRepository.findById(roomId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ROOM_NOT_FOUND));
 
-        List<ChatMessage> messages =
-                chatMessageRepository.findByRoomAndDeletedFalse(
-                        room,
-                        org.springframework.data.domain.Pageable.unpaged()
-                ).getContent();
-
-        return messages.stream()
-                .map(message -> {
-
-                    User senderUser = userRepository
-                            .findByEmail(message.getSender())
-                            .orElse(null);
-
-                    String profileImageUrl =
-                            senderUser != null ? senderUser.getProfileImageUrl() : null;
-
-                    int unreadCount = 0;
-
-                    return new ChatMessageResponse(
-                            message.getId(),
-                            message.getSender(),
-                            message.getContent(),
-                            message.getCreatedAt(),
-                            profileImageUrl,
-                            unreadCount
-                    );
-                })
-                .toList();
+        return chatMessageRepository.findMessagesWithUser(roomId);
     }
 
     public List<String> getRoomMemberEmails(Long roomId) {

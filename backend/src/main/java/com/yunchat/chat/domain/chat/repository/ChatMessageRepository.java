@@ -63,7 +63,6 @@ public interface ChatMessageRepository
         on m.sender = u.email
     where m.room.id = :roomId
     and m.deleted = false
-    order by m.createdAt asc
 """)
-    List<com.yunchat.chat.domain.chat.dto.ChatMessageResponse> findMessagesWithUser(Long roomId);
+    Page<ChatMessageResponse> findMessagesWithUser(Long roomId, Pageable pageable);
 }

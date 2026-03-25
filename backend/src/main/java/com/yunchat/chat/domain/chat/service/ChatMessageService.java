@@ -237,7 +237,9 @@ public class ChatMessageService {
         chatRoomRepository.findById(roomId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ROOM_NOT_FOUND));
 
-        return chatMessageRepository.findMessagesWithUser(roomId);
+        PageRequest pageable = PageRequest.of(0, 20, Sort.by("createdAt").ascending());
+
+        return chatMessageRepository.findMessagesWithUser(roomId, pageable).getContent();
     }
 
     public List<String> getRoomMemberEmails(Long roomId) {

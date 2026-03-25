@@ -71,5 +71,5 @@ public interface ChatMessageRepository
     List<ChatMessageResponse> findMessagesWithCursor(
             Long roomId,
             Long cursorId,
-            Pageable pageable)
-};
+            Pageable pageable);
+}

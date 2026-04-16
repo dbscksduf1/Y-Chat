@@ -13,7 +13,7 @@ class UserQuerydslTest {
 
     @Test
     void querydslTest() {
-        var users = userRepository.findByUsername("test");
-        users.forEach(System.out::println);
+        var user = userRepository.findByEmail("test@test.com");
+        System.out.println(user);
     }
 }

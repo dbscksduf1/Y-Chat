@@ -1,11 +1,13 @@
 package com.yunchat.chat.global.websocket;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Slf4j
 @Service
 public class OnlineUserService {
 
@@ -30,7 +32,7 @@ public class OnlineUserService {
 
         activeRoomMap.put(email, roomId);
 
-        System.out.println("ENTER ROOM: " + email + " -> " + roomId);
+        log.debug("ENTER ROOM: {} -> {}", email, roomId);
 
     }
 
@@ -40,7 +42,7 @@ public class OnlineUserService {
 
         if (current != null && current.equals(roomId)) {
             activeRoomMap.remove(email);
-            System.out.println("LEAVE ROOM: " + email + " -> " + roomId);
+            log.debug("LEAVE ROOM: {} -> {}", email, roomId);
         }
 
     }
@@ -49,8 +51,7 @@ public class OnlineUserService {
 
         Long current = activeRoomMap.get(email);
 
-        System.out.println("isUserInRoom CHECK: "
-                + email + " 현재저장값=" + current + " 비교방=" + roomId);
+        log.debug("isUserInRoom CHECK: {} 현재저장값={} 비교방={}", email, current, roomId);
 
         return current != null && current.equals(roomId);
 

@@ -2,8 +2,18 @@ import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "../api/axios";
 import { Client } from "@stomp/stompjs";
-import { getMyChatRooms } from "../api/chatApi";
-import { getMessages } from "../api/chatApi";
+import { getMyChatRooms, getMessages } from "../api/chatApi";
+
+interface ChatMessage {
+  id: number | null;
+  roomId: number | null;
+  sender: string;
+  content: string;
+  createdAt: string;
+  profileImageUrl: string | null;
+  unreadCount: number;
+  system?: boolean;
+}
 
 
 
@@ -19,7 +29,7 @@ function ChatRoomPage({ isRandom }: { isRandom?: boolean }) {
   const { roomId } = useParams();
   const navigate = useNavigate();
 
-  const [messages, setMessages] = useState<any[]>([]);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
 
   const stompClient = useRef<Client | null>(null);
@@ -112,10 +122,14 @@ function ChatRoomPage({ isRandom }: { isRandom?: boolean }) {
 
     const client = new Client({
 
-  webSocketFactory: () =>
-    new WebSocket(`wss://y-chat-my45.onrender.com/ws-chat?token=${token}`),
+      webSocketFactory: () =>
+        new WebSocket(`${import.meta.env.VITE_WS_URL}/ws-chat`),
 
-  reconnectDelay: 5000,
+      connectHeaders: {
+        Authorization: `Bearer ${token}`,
+      },
+
+      reconnectDelay: 5000,
 
       onConnect: () => {
 
@@ -149,28 +163,20 @@ setMessages((prev) => [...prev, newMessage]);
           });
 
           client.subscribe(`/user/queue/unread`, async () => {
-
-            const data = await getMyChatRooms();
-
-            const sorted = data.sort(
-              (a:any,b:any)=>
-                new Date(b.lastMessageTime).getTime() -
-                new Date(a.lastMessageTime).getTime()
-            );
-
-            
-
+            await getMyChatRooms();
           });
 
         }
 
         // 일반 채팅에서만 enter 이벤트
-        client.publish({
-  destination: "/app/chat.enter",
-  body: JSON.stringify({
-    roomId: Number(roomId),
-  }),
-});
+        if (!isRandom) {
+          client.publish({
+            destination: "/app/chat.enter",
+            body: JSON.stringify({
+              roomId: Number(roomId),
+            }),
+          });
+        }
 
       },
     });
@@ -296,11 +302,9 @@ setMessages((prev) => [...prev, newMessage]);
               {!isMine && (
                 <img
                   src={
-                    isRandom
+                    isRandom || !msg.profileImageUrl
                       ? "https://cdn-icons-png.flaticon.com/512/847/847969.png"
-                      : msg.profileImageUrl
-                        ? "https://y-chat-my45.onrender.com" + msg.profileImageUrl
-                        : "https://cdn-icons-png.flaticon.com/512/847/847969.png"
+                      : `${import.meta.env.VITE_API_BASE_URL}${msg.profileImageUrl}`
                   }
                   style={styles.avatar}
                 />

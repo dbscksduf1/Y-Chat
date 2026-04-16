@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 public class ChatMessageResponse implements Serializable {
 
     private Long id;
+    private Long roomId;
     private String sender;
     private String content;
     private LocalDateTime createdAt;
@@ -17,12 +18,14 @@ public class ChatMessageResponse implements Serializable {
     }
 
     public ChatMessageResponse(Long id,
+                               Long roomId,
                                String sender,
                                String content,
                                LocalDateTime createdAt,
                                String profileImageUrl,
                                int unreadCount) {
         this.id = id;
+        this.roomId = roomId;
         this.sender = sender;
         this.content = content;
         this.createdAt = createdAt;
@@ -32,6 +35,10 @@ public class ChatMessageResponse implements Serializable {
 
     public Long getId() {
         return id;
+    }
+
+    public Long getRoomId() {
+        return roomId;
     }
 
     public String getSender() {
@@ -58,6 +65,10 @@ public class ChatMessageResponse implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public void setRoomId(Long roomId) {
+        this.roomId = roomId;
     }
 
     public void setSender(String sender) {

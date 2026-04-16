@@ -7,9 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import com.yunchat.chat.domain.chat.dto.ChatMessageResponse;
 import org.springframework.data.jpa.repository.Query;
-import java.util.List;
 import org.springframework.data.repository.query.Param;
-
 import java.util.List;
 
 public interface ChatMessageRepository
@@ -54,6 +52,7 @@ public interface ChatMessageRepository
     @Query("""
     select new com.yunchat.chat.domain.chat.dto.ChatMessageResponse(
         m.id,
+        m.room.id,
         m.sender,
         m.content,
         m.createdAt,
@@ -72,4 +71,17 @@ public interface ChatMessageRepository
             Long roomId,
             Long cursorId,
             Pageable pageable);
+
+    @Query("""
+    select m from ChatMessage m
+    join fetch m.room
+    where m.deleted = false
+    and m.id in (
+        select max(m2.id) from ChatMessage m2
+        where m2.room.id in :roomIds
+        and m2.deleted = false
+        group by m2.room.id
+    )
+""")
+    List<ChatMessage> findLastMessagesPerRoom(@Param("roomIds") List<Long> roomIds);
 }

@@ -2,6 +2,7 @@ package com.yunchat.chat.global.websocket;
 
 import com.yunchat.chat.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.stomp.*;
 import org.springframework.stereotype.Component;
@@ -10,6 +11,7 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 import java.security.Principal;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class WebSocketEventListener {
@@ -29,7 +31,7 @@ public class WebSocketEventListener {
 
         if (user != null) {
             onlineUserService.addUser(user.getName());
-            System.out.println("WebSocket Connected: " + user.getName());
+            log.debug("WebSocket Connected: {}", user.getName());
         }
     }
 
@@ -50,7 +52,7 @@ public class WebSocketEventListener {
             // 🔥 추가
             userService.updateLastActive(email);
 
-            System.out.println("WebSocket Disconnected: " + email);
+            log.debug("WebSocket Disconnected: {}", email);
         }
     }
 }

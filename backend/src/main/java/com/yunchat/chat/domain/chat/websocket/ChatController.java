@@ -41,10 +41,11 @@ public class ChatController {
         // ⭐ 랜덤채팅 방 체크
         RandomRoom randomRoom = randomChatService.getRoom(roomId);
 
-        if (randomRoom != null || roomId > 1000000000000L) {
+        if (randomRoom != null) {
 
             ChatMessageResponse message = new ChatMessageResponse(
                     null,
+                    roomId,
                     senderEmail,
                     request.getContent(),
                     LocalDateTime.now(),
@@ -152,6 +153,7 @@ public class ChatController {
 
         ChatMessageResponse message = new ChatMessageResponse(
                 null,
+                roomId,
                 "system",
                 "상대방이 나갔습니다",
                 java.time.LocalDateTime.now(),

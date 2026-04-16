@@ -14,16 +14,14 @@ import com.yunchat.chat.domain.user.service.BlockService;
 import com.yunchat.chat.global.exception.CustomException;
 import com.yunchat.chat.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import java.util.Collections;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -40,100 +38,83 @@ public class ChatMessageService {
 
     public List<ChatRoomListResponse> getMyChatRooms(String username) {
 
-        List<RoomMember> memberships =
-                roomMemberRepository.findByUsername(username);
+        List<RoomMember> memberships = roomMemberRepository.findByUsername(username);
 
-        List<Object[]> unreadResults =
-                chatMessageRepository.countUnreadGroupedByRoom(username);
+        // RANDOM 채팅방 제외, roomId 목록 수집
+        List<Long> roomIds = memberships.stream()
+                .filter(m -> m.getRoom().getRoomType() != RoomType.RANDOM)
+                .map(m -> m.getRoom().getId())
+                .distinct()
+                .toList();
 
+        if (roomIds.isEmpty()) return Collections.emptyList();
+
+        // 읽지 않은 메시지 수 (1 쿼리)
         Map<Long, Long> unreadMap = new HashMap<>();
-        for (Object[] row : unreadResults) {
+        for (Object[] row : chatMessageRepository.countUnreadGroupedByRoom(username)) {
             unreadMap.put((Long) row[0], (Long) row[1]);
         }
 
+        // 각 방의 전체 멤버 (1 쿼리)
+        Map<Long, List<String>> membersMap = roomMemberRepository.findByRoomIds(roomIds)
+                .stream()
+                .collect(Collectors.groupingBy(
+                        rm -> rm.getRoom().getId(),
+                        Collectors.mapping(RoomMember::getUsername, Collectors.toList())
+                ));
+
+        // 각 방의 마지막 메시지 (1 쿼리)
+        Map<Long, ChatMessage> lastMessageMap = chatMessageRepository.findLastMessagesPerRoom(roomIds)
+                .stream()
+                .collect(Collectors.toMap(m -> m.getRoom().getId(), m -> m));
+
         List<ChatRoomListResponse> result = new ArrayList<>();
 
-        for (RoomMember member : memberships) {
+        for (RoomMember membership : memberships) {
 
-            ChatRoom room = member.getRoom();
+            ChatRoom room = membership.getRoom();
 
-            // 🔥 RANDOM 채팅방은 목록에서 제외
-            if (room.getRoomType() == RoomType.RANDOM) {
-                continue;
-            }
+            if (room.getRoomType() == RoomType.RANDOM) continue;
 
-            List<String> members = roomMemberRepository.findByRoomId(room.getId())
-                    .stream()
-                    .map(RoomMember::getUsername)
-                    .toList();
+            List<String> members = membersMap.getOrDefault(room.getId(), Collections.emptyList());
 
-            for (String other : members) {
-                if (!other.equals(username) && blockService.isBlocked(username, other)) {
-                    room = null;
-                    break;
-                }
-            }
+            boolean blocked = members.stream()
+                    .filter(other -> !other.equals(username))
+                    .anyMatch(other -> blockService.isBlocked(username, other));
 
-            if (room == null) continue;
+            if (blocked) continue;
 
-            List<ChatMessage> messages =
-                    chatMessageRepository.findByRoomAndDeletedFalse(
-                            room,
-                            org.springframework.data.domain.PageRequest.of(
-                                    0,
-                                    1,
-                                    org.springframework.data.domain.Sort.by("createdAt").descending()
-                            )
-                    ).getContent();
+            ChatMessage lastMessage = lastMessageMap.get(room.getId());
+            Long unreadCount = unreadMap.getOrDefault(room.getId(), 0L);
 
-            ChatMessage lastMessage =
-                    messages.isEmpty() ? null : messages.get(0);
-
-            Long unreadCount =
-                    unreadMap.getOrDefault(room.getId(), 0L);
-
-            result.add(
-                    new ChatRoomListResponse(
-                            room.getId(),
-                            room.getRoomName(),
-                            lastMessage != null ? lastMessage.getContent() : null,
-                            lastMessage != null ? lastMessage.getCreatedAt() : null,
-                            unreadCount
-                    )
-            );
+            result.add(new ChatRoomListResponse(
+                    room.getId(),
+                    room.getRoomName(),
+                    lastMessage != null ? lastMessage.getContent() : null,
+                    lastMessage != null ? lastMessage.getCreatedAt() : null,
+                    unreadCount
+            ));
         }
 
-        result.sort(
-                Comparator.comparing(
-                        ChatRoomListResponse::getLastMessageTime,
-                        Comparator.nullsLast(Comparator.reverseOrder())
-                )
-        );
+        result.sort(Comparator.comparing(
+                ChatRoomListResponse::getLastMessageTime,
+                Comparator.nullsLast(Comparator.reverseOrder())
+        ));
 
         return result;
     }
 
     public void markAsRead(Long roomId, String username) {
 
-        ChatRoom room = chatRoomRepository.findById(roomId)
+        chatRoomRepository.findById(roomId)
                 .orElseThrow(() -> new CustomException(ErrorCode.ROOM_NOT_FOUND));
 
-        List<ChatMessage> messages =
-                chatMessageRepository.findByRoomAndDeletedFalse(
-                        room,
-                        org.springframework.data.domain.Pageable.unpaged()
-                ).getContent();
+        List<ChatMessage> unread = chatMessageRepository.findUnreadMessages(roomId, username);
 
-        for (ChatMessage message : messages) {
-
-            boolean exists = messageReadRepository
-                    .existsByMessageAndUsername(message, username);
-
-            if (!exists) {
-                messageReadRepository.save(
-                        new MessageRead(message, username)
-                );
-            }
+        if (!unread.isEmpty()) {
+            messageReadRepository.saveAll(
+                    unread.stream().map(m -> new MessageRead(m, username)).toList()
+            );
         }
     }
 
@@ -312,6 +293,7 @@ public class ChatMessageService {
 
         return new ChatMessageResponse(
                 message.getId(),
+                room.getId(),
                 message.getSender(),
                 message.getContent(),
                 message.getCreatedAt(),
@@ -337,19 +319,12 @@ public class ChatMessageService {
 
     public List<ChatMessage> markAsReadAndReturnMessages(Long roomId, String email) {
 
-        List<ChatMessage> unreadMessages =
-                chatMessageRepository.findUnreadMessages(roomId, email);
+        List<ChatMessage> unreadMessages = chatMessageRepository.findUnreadMessages(roomId, email);
 
-        for (ChatMessage msg : unreadMessages) {
-
-            boolean exists = messageReadRepository
-                    .existsByMessageAndUsername(msg, email);
-
-            if (!exists) {
-                messageReadRepository.save(
-                        new MessageRead(msg, email)
-                );
-            }
+        if (!unreadMessages.isEmpty()) {
+            messageReadRepository.saveAll(
+                    unreadMessages.stream().map(m -> new MessageRead(m, email)).toList()
+            );
         }
 
         return unreadMessages;

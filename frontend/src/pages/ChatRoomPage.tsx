@@ -338,7 +338,7 @@ setMessages((prev) => [...prev, newMessage]);
                 </div>
 
                 <div style={styles.time}>
-                  {new Date(msg.createdAt + "Z").toLocaleTimeString("ko-KR", {
+                  {new Date(msg.createdAt).toLocaleTimeString("ko-KR", {
                     hour: "2-digit",
                     minute: "2-digit"
                   })}

@@ -66,14 +66,8 @@ public class ChatController {
         ChatMessageResponse savedMessage =
                 chatMessageService.saveMessage(request, senderEmail);
 
-        // Redis publish
+        // Redis publish → RedisSubscriber가 WebSocket broadcast 담당
         redisPublisher.publish(savedMessage);
-
-        // WebSocket broadcast
-        messagingTemplate.convertAndSend(
-                "/topic/room/" + roomId,
-                savedMessage
-        );
 
         List<String> memberEmails =
                 chatMessageService.getRoomMemberEmails(roomId);

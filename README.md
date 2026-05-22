@@ -47,9 +47,7 @@ WebSocket 기반의 양방향 통신과 Redis Pub/Sub 구조를 적용하여
 
 # 시스템 아키텍처 <a name="arch"></a>
 
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/589123ff-441f-4dec-b025-7b08d21c39ac"/>
-</p>
+
 
 
 ### 1. User → React Client
